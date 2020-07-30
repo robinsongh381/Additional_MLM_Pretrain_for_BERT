@@ -8,13 +8,13 @@ import constant as model_config
 
 class MLMDataset(Dataset): 
     def __init__(self,dtype):
-        self.origin = torch.load('./data/{}_origin.pt'.format(dtype))
-        self.mask = torch.load('./data/{}_mask.pt'.format(dtype))
-        assert len(self.origin)==len(self.mask)
-        self.length = len(self.origin)
+        self.masked_sent = torch.load('./data/{}_mask.pt'.format(dtype))
+        self.label = torch.load('./data/{}_label.pt'.format(dtype))
+        assert len(self.masked_sent)==len(self.label)
+        self.length = len(self.label)
         
     def __getitem__(self, idx):
-        return self.mask[idx], self.origin[idx]
+        return self.masked_sent[idx], self.label[idx]
     
     def __len__(self):
         return self.length
@@ -22,13 +22,13 @@ class MLMDataset(Dataset):
     
 def pad_collate(batch):
 
-    (mask, origin) = zip(*batch)
+    (masked_sent, label) = zip(*batch)
     
     # masked sentence
-    len_s1 = [len(x) for x in mask]
+    len_s1 = [len(x) for x in masked_sent]
     max_token_len_s1 = max(len_s1)  
     input_mask = torch.tensor(len_s1) # valid length
-    token_ids_mask = pad_sequences(mask, 
+    token_ids_mask = pad_sequences(masked_sent, 
                               maxlen=max_token_len_s1, # model_config.maxlen 
                               value=model_config.pad_idx, 
                               padding='post',
@@ -38,9 +38,9 @@ def pad_collate(batch):
     segment_ids_mask = [len(i)*[0] for i in token_ids_mask]
     
     # original sentence
-    len_s2 = [len(y) for y in origin] 
-    token_ids_origin = pad_sequences(origin, 
-                              maxlen=max(len_s2) , # model_config.maxlen 
+    # len_s2 = [len(y) for y in label] 
+    token_ids_origin = pad_sequences(label, 
+                              maxlen=max(len_s1) , # model_config.maxlen 
                               value=model_config.pad_idx, 
                               padding='post',
                               dtype='long',

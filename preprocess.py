@@ -8,32 +8,38 @@ test_data = list(open('./data/KorNLUDatasets/KorNLI/xnli.test.ko.tsv'))[1:]
 mode = ['tr', 'test']
 
 
-def random_word(list_of_idx):
-        output_label = []
+def random_word(tokens):
+    output_label = []
 
-        for i, index in enumerate(list_of_idx):
-            prob = random.random()
-            if prob < 0.15:
-                prob /= 0.15
+    for i, token in enumerate(tokens):
+        prob = random.random()
+        if prob < 0.15:
+            prob /= 0.15
 
-                # 80% randomly change token to mask token
-                if prob < 0.8:
-                    replace_idx = tokenizer.mask_token_id
+            # 80% randomly change token to mask token
+            if prob < 0.8:
+                tokens[i] = tokenizer.mask_token_id
 
-                # 10% randomly change token to random token
-                elif prob < 0.9:
-                    replace_idx = random.randrange(tokenizer.vocab_size)
+            # 10% randomly change token to random token
+            elif prob < 0.9:
+                tokens[i] = random.randrange(tokenizer.vocab_size)
 
-                # 10% randomly change token to current token
-                else:
-                    replace_idx = index
+            # 10% randomly change token to current token
             else:
-                replace_idx = index
-            output_label.append(replace_idx)
+                tokens[i] = token
+
+            output_label.append(token)
+
+        else:
+            tokens[i] = token
+            output_label.append(0)
+
+    return tokens, output_label
 
 
-        return output_label
-
+print('Preprocess Start !')
+mode = ['tr', 'test']
+dataset = [tr_data, test_data]
 
 for m in mode:
     print('start processing {} file'.format(m))
@@ -42,21 +48,22 @@ for m in mode:
     else:
         data = test_data
     
-    list_of_original_sent = []
     list_of_masked_sent = []
+    list_of_label_sent = []
     
     for i in tqdm(data):
         sent1, sent2, label = i.split('\t')
 
         sent1_idx = tokenizer.convert_tokens_to_ids(tokenizer.tokenize(sent1))
-        sent1_rand = random_word(sent1_idx)
+        masked_sent, output_label = random_word(sent1_idx)
+
         # sent2_idx = tokenizer.convert_tokens_to_ids(tokenizer.tokenize(sent2))
-        # sent2_rand = random_word(sent2_idx)
+        # tokens, output_label = random_word(sent2_idx)
 
-        list_of_original_sent.append([tokenizer.cls_token_id]+sent1_idx+[tokenizer.sep_token_id])
-        list_of_masked_sent.append([tokenizer.cls_token_id]+sent1_rand+[tokenizer.sep_token_id])
+        list_of_masked_sent.append([tokenizer.cls_token_id]+masked_sent+[tokenizer.sep_token_id])
+        list_of_label_sent.append([tokenizer.cls_token_id]+output_label+[tokenizer.sep_token_id])
 
-    assert len(list_of_original_sent)==len(list_of_masked_sent)
+    assert len(list_of_masked_sent)==len(list_of_label_sent)
     
-    torch.save(list_of_original_sent, './data/{}_origin.pt'.format(m))
     torch.save(list_of_masked_sent, './data/{}_mask.pt'.format(m))
+    torch.save(list_of_label_sent, './data/{}_label.pt'.format(m))

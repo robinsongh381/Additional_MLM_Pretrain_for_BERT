@@ -7,8 +7,8 @@ device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cp
 # Model
 hidden_size = 768
 maxlen = 32
-epoch = 50
-batch_size = 32
+epoch = 10
+batch_size = 16
 dropout = 0.1
 learning_rate = 2e-5
 vocab_size = 8002

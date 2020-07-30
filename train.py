@@ -22,16 +22,15 @@ if __name__ == '__main__':
     
     # log file
     parser.add_argument('-log_dir', default='./experiment')
-    parser.add_argument('-log_folder', default='/{}_distill_{}_batch_{}_epoch_{}') 
-    parser.add_argument('-dname', default='nli', choices=['nli','mnli','nli+mnli'])
-    parser.add_argument('-distill', default=False)
+    parser.add_argument('-log_folder', default='/Distill_{}_batch_{}_epoch_{}') 
+    parser.add_argument('-distill', default=True)
     
     # model config
     parser.add_argument("-epoch", default=config.epoch, type=int)
     parser.add_argument("-batch_size", default=config.batch_size, type=int)
     args = parser.parse_args()
     
-    log_path = args.log_dir + args.log_folder.format(args.dname, args.distill, args.batch_size, args.epoch)
+    log_path = args.log_dir + args.log_folder.format(args.distill, args.batch_size, args.epoch)
     print('log_path : {}'.format(log_path))
     init_logger(log_path,'/log/log.txt')
     
