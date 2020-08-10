@@ -108,8 +108,8 @@ class Trainer:
         valid_loader = tqdm(self.valid_dataloader)
         for step, batch in enumerate(valid_loader):    
             with torch.no_grad():   
-                input_idx, valid_length, token_type_idx, label = transform_to_bert_input(batch)
-                output  = model(input_idx, valid_length, token_type_idx)
+                input_idx, valid_length, token_type_idx, label = self.transform_to_bert_input(batch)
+                output  = self.model(input_idx, valid_length, token_type_idx)
                 
             loss = self.criterion(output.view(-1, output.size(-1)), label.view(-1))                     
             eval_loss += loss.item()
