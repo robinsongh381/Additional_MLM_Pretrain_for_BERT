@@ -61,7 +61,7 @@ for m in mode:
         # tokens, output_label = random_word(sent2_idx)
 
         list_of_masked_sent.append([tokenizer.cls_token_id]+masked_sent+[tokenizer.sep_token_id])
-        list_of_label_sent.append([tokenizer.cls_token_id]+output_label+[tokenizer.sep_token_id])
+        list_of_label_sent.append([0]+output_label+[0])
 
     assert len(list_of_masked_sent)==len(list_of_label_sent)
     
