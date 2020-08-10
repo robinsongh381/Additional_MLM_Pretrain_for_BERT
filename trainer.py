@@ -137,7 +137,7 @@ class Trainer:
             torch.save(state, save_model_path)
             self.logger.info(' Model saved to {}'.format(save_model_path))
             
-            os.mkdir(self.save_path+'/epoch_{}_eval_loss_{:.3f}_eval_acc_{:.3f}'.format(epoch+1, self.eval_avg_loss, self.eval_avg_acc))  
+            os.mkdir(self.save_path+'/epoch_{}_eval_loss_{:.3f}'.format(epoch+1, self.eval_avg_loss))  
 
 
     def write_to_tb(self):
